@@ -33,7 +33,6 @@ def timer01():
     print("data get timeout")
     try_count += 1
     f = open(nowTime + 'log.txt', 'a')
-    f.writelines(str(date.datetime.now()) + "\t" + "Sample no : " + "\t" + str(try_count) + "\n")
     for i in range(len(Device)):
         if check_device[i] == False:
             log_txt = str(date.datetime.now()) + "\t" + "fail device : " + "\t" + device_type[i] +" " + Device[i] + "\n"
@@ -44,6 +43,9 @@ def timer01():
 
 def sample_start():
     print("Sample no : ", try_count)
+    f = open(nowTime + 'log.txt', 'a')
+    f.writelines(str(date.datetime.now()) + "\t" + "Sample no : " + "\t" + str(try_count+1) + "\n")
+    f.close()
     client.publish("Entity/SHM/Node/" + PANID + "/OTA", '{"nId":"' + PANID + '","nT":"SHM","status":{"OP":"Sample"},"timestamp":' + str(int(time.time())) + '}')
     for i in range(0, 4):
         check_device[i] = False
@@ -84,11 +86,13 @@ def on_message(client, userdata, msg):
     mqtt_data = str(msg.payload)
     topic = str(msg.topic)
     for i in range(len(Device)):
-        if Device[i] != None:
-            if(topic.find(Device[i]) >= 0):
-                if(mqtt_data.find('"GENERIC"') >= 0):
-                    print(Device[i] + "  GENERIC")
-                    check_device[i] = True
+        if(Device[i] != None) and (topic.find(Device[i]) >= 0) and (mqtt_data.find('"GENERIC"') >= 0) and (check_device[i] == False):
+            print(Device[i] + "  GENERIC")
+            check_device[i] = True
+            f = open(nowTime + 'log.txt', 'a')
+            log_txt = str(date.datetime.now()) + "\t" + "ok device : " + "\t" + device_type[i] +" " + Device[i] + "\n"
+            f.writelines(log_txt)
+            f.close()
 
     if False in check_device:
         print("list False")
