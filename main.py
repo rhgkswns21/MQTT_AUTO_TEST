@@ -124,3 +124,8 @@ f.close()
 sample_start()
 
 client.loop_forever()
+
+print("Complete!")
+
+# 라인 정지
+a = input()
