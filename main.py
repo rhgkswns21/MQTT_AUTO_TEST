@@ -9,6 +9,8 @@ device_type = ["M", "S1", "S2", "S3"]
 check_device = [False, False, False, False]
 timer = []
 
+nowTime = date.datetime.now().strftime('%H%M%S')
+
 f = open("info.txt", "r")
 broker = f.readline()
 sample_count = int(f.readline().strip())
@@ -30,7 +32,7 @@ def timer01():
     global try_count
     print("data get timeout")
     try_count += 1
-    f = open('log.txt', 'a')
+    f = open(nowTime + 'log.txt', 'a')
     f.writelines(str(date.datetime.now()) + "\t" + "Sample no : " + "\t" + str(try_count) + "\n")
     for i in range(len(Device)):
         if check_device[i] == False:
@@ -62,7 +64,7 @@ def log_start():
         if i != None:
             time.sleep(1)
             client.publish("Entity/SHM/Node/"+i+"/OTA",'{"nId":"'+i+'","nT":"SHM","status":{"OP":"TestLog"},"timestamp":'+str(int(time.time()))+'}')
-    f = open('log.txt', 'a')
+    f = open(nowTime + 'log.txt', 'a')
     f.writelines(str(date.datetime.now()) + "\t" + str(try_count - sample_count) + " is failed out of " + str(try_count) + " times\n")
     f.writelines(str(date.datetime.now()) + "\t" + "End Test...\n")
     f.close()
@@ -112,7 +114,7 @@ client.on_message = on_message  # on_message callback 설정
 client.on_connect = on_connect  # on_connect callback 설정
 client.connect(broker.strip())  # MQTT 서버에 연결
 
-f = open('log.txt', 'a')
+f = open(nowTime + 'log.txt', 'a')
 f.writelines("\n" + str(date.datetime.now()) + "\t" +"Test Start...\n")
 f.writelines(str(date.datetime.now()) + "\t" +"Test count" + "\t" + str(sample_count) + "\n")
 f.writelines(str(date.datetime.now()) + "\t" +"PANID" + "\t" + PANID + "\n")
@@ -124,8 +126,3 @@ f.close()
 sample_start()
 
 client.loop_forever()
-
-print("Complete!")
-
-# 라인 정지
-a = input()
